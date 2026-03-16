@@ -1,7 +1,7 @@
 ﻿using DSA_P1_KH.Repository;
 using DSA_P1_KH.Service;
 using DSA_P1_KH.View;
-
+using Spectre.Console;
 namespace DSA_P1_KH;
 
 class Program
@@ -15,7 +15,6 @@ class Program
              "..",
              "tasks.json"
          );
-
         ITaskRepository repository = new JsonTaskRepository(filePath);
         ITaskService service = new TaskService(repository);
         ITaskView view = new ConsoleTaskView(service);

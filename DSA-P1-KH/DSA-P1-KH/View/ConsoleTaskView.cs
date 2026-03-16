@@ -1,5 +1,6 @@
-using DSA_P1_KH.Model;
+﻿using DSA_P1_KH.Model;
 using DSA_P1_KH.Service;
+using Spectre.Console;
 
 namespace DSA_P1_KH.View;
 
@@ -14,19 +15,33 @@ public class ConsoleTaskView : ITaskView
 
     void DisplayTasks(IEnumerable<TaskItem> tasks)
     {
-        Console.Clear();
-        Console.WriteLine("==== ToDo List ====");
+        AnsiConsole.Clear();
+
+        AnsiConsole.Write(
+            new Rule("[yellow]ToDo List[/]").RuleStyle("grey").Centered()
+        );
+
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .Title("[bold blue]Tasks Overview[/]")
+            .AddColumn(new TableColumn("[green]ID[/]").Centered())
+            .AddColumn(new TableColumn("[white]Description[/]"))
+            .AddColumn(new TableColumn("[cyan]Status[/]").Centered());
 
         foreach (var task in tasks)
         {
-            Console.WriteLine($"[{task.Id}] {task.Description} - Completed: {task.Completed}");
-        }
-    }
+            var status = task.Completed
+                ? "[green]Done[/]"
+                : "[red]Pending[/]";
 
-    string Prompt(string prompt)
-    {
-        Console.Write(prompt);
-        return Console.ReadLine() ?? "";
+            table.AddRow(
+                task.Id.ToString(),
+                task.Description,
+                status
+            );
+        }
+
+        AnsiConsole.Write(table);
     }
 
     public void Run()
@@ -35,44 +50,40 @@ public class ConsoleTaskView : ITaskView
         {
             DisplayTasks(_service.GetAllTasks());
 
-            Console.WriteLine("\nOptions:");
-            Console.WriteLine("1. Add Task");
-            Console.WriteLine("2. Remove Task");
-            Console.WriteLine("3. Toggle Task State");
-            Console.WriteLine("4. Exit");
-
-            string option = Prompt("Select an option: ");
+            var option = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Select an option[/]")
+                    .PageSize(10)
+                    .AddChoices(new[]
+                    {
+                        "Add Task",
+                        "Remove Task",
+                        "Toggle Task State",
+                        "Exit"
+                    }));
 
             switch (option)
             {
-                case "1":
-                    string description = Prompt("Enter task description: ");
+                case "Add Task":
+                    var description = AnsiConsole.Ask<string>(
+                        "Enter [green]task description[/]:");
                     _service.AddTask(description);
                     break;
 
-                case "2":
-                    string removeIdStr = Prompt("Enter task id to remove: ");
-                    if (int.TryParse(removeIdStr, out int removeId))
-                    {
-                        _service.RemoveTask(removeId);
-                    }
+                case "Remove Task":
+                    var removeId = AnsiConsole.Ask<int>(
+                        "Enter task [red]id[/] to remove:");
+                    _service.RemoveTask(removeId);
                     break;
 
-                case "3":
-                    string toggleIdStr = Prompt("Enter task id to toggle: ");
-                    if (int.TryParse(toggleIdStr, out int toggleId))
-                    {
-                        _service.ToggleTaskCompletion(toggleId);
-                    }
+                case "Toggle Task State":
+                    var toggleId = AnsiConsole.Ask<int>(
+                        "Enter task [blue]id[/] to toggle:");
+                    _service.ToggleTaskCompletion(toggleId);
                     break;
 
-                case "4":
+                case "Exit":
                     return;
-
-                default:
-                    Console.WriteLine("Invalid option. Press any key...");
-                    Console.ReadKey();
-                    break;
             }
         }
     }
