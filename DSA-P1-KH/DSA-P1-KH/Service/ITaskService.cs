@@ -5,7 +5,10 @@ namespace DSA_P1_KH.Service;
 public interface ITaskService
 {
     IEnumerable<TaskItem> GetAllTasks();
+
     void AddTask(string description);
+
     void RemoveTask(int id);
-    void ToggleTaskCompletion(int id);
+
+    void ChangeTaskStatus(int id, TaskState newStatus);
 }

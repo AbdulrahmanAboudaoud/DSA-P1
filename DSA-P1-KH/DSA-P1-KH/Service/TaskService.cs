@@ -21,15 +21,16 @@ public class TaskService : ITaskService
 
     public void AddTask(string description)
     {
-        int newId = _tasks.Count > 0
-            ? _tasks[_tasks.Count - 1].Id + 1
+        int newId = _tasks.Any()
+            ? _tasks.Max(t => t.Id) + 1
             : 1;
 
         var newTask = new TaskItem
         {
             Id = newId,
             Description = description,
-            Completed = false
+            Status = TaskState.Todo,
+            CreationDate = DateTime.Now
         };
 
         _tasks.Add(newTask);
@@ -47,13 +48,13 @@ public class TaskService : ITaskService
         }
     }
 
-    public void ToggleTaskCompletion(int id)
+    public void ChangeTaskStatus(int id, TaskState newStatus)
     {
         var task = _tasks.Find(t => t.Id == id);
 
         if (task != null)
         {
-            task.Completed = !task.Completed;
+            task.Status = newStatus;
             _repository.SaveTasks(_tasks);
         }
     }
