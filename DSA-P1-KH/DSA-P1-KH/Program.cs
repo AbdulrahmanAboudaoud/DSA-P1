@@ -6,7 +6,7 @@ namespace DSA_P1_KH;
 
 class Program
 {
-    public static void Main()
+    static void Main()
     {
         string filePath = Path.Combine(
              AppContext.BaseDirectory,
