@@ -1,12 +1,13 @@
 using DSA_P1_KH.Model;
 using DSA_P1_KH.Repository;
+using DSA_P1_KH.DataStructures.Interfaces;
 
 namespace DSA_P1_KH.Service;
 
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
-    private readonly List<TaskItem> _tasks;
+    private readonly IMyCollection<TaskItem> _tasks;
 
     public TaskService(ITaskRepository repository)
     {
@@ -21,9 +22,8 @@ public class TaskService : ITaskService
 
     public void AddTask(string description)
     {
-        int newId = _tasks.Any()
-            ? _tasks.Max(t => t.Id) + 1
-            : 1;
+        int maxId = _tasks.Reduce(0, (max, t) => t.Id > max ? t.Id : max);
+        int newId = maxId + 1;
 
         var newTask = new TaskItem
         {
@@ -39,7 +39,7 @@ public class TaskService : ITaskService
 
     public void RemoveTask(int id)
     {
-        var task = _tasks.Find(t => t.Id == id);
+        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
 
         if (task != null)
         {
@@ -50,7 +50,7 @@ public class TaskService : ITaskService
 
     public void ChangeTaskStatus(int id, TaskState newStatus)
     {
-        var task = _tasks.Find(t => t.Id == id);
+        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
 
         if (task != null)
         {

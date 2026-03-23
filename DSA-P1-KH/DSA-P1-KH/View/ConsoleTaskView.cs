@@ -1,6 +1,7 @@
 ﻿using DSA_P1_KH.Model;
 using DSA_P1_KH.Service;
 using Spectre.Console;
+using DSA_P1_KH.DataStructures.Interfaces;
 
 namespace DSA_P1_KH.View;
 
@@ -21,11 +22,18 @@ public class ConsoleTaskView : ITaskView
             new Rule("[yellow]Kanban Board[/]").RuleStyle("grey").Centered()
         );
 
-        var todo = tasks.Where(t => t.Status == TaskState.Todo).ToList();
-        var progress = tasks.Where(t => t.Status == TaskState.InProgress).ToList();
-        var done = tasks.Where(t => t.Status == TaskState.Done).ToList();
+        var collection = (IMyCollection<TaskItem>)tasks;
 
-        int maxRows = new[] { todo.Count, progress.Count, done.Count }.Max();
+        var todo = collection.Filter(t => t.Status == TaskState.Todo);
+        var progress = collection.Filter(t => t.Status == TaskState.InProgress);
+        var done = collection.Filter(t => t.Status == TaskState.Done);
+
+        int maxRows = Math.Max(todo.Count,
+                        Math.Max(progress.Count, done.Count));
+
+        var todoIt = todo.GetIterator();
+        var progIt = progress.GetIterator();
+        var doneIt = done.GetIterator();
 
         var table = new Table()
             .Border(TableBorder.Rounded)
@@ -35,9 +43,17 @@ public class ConsoleTaskView : ITaskView
 
         for (int i = 0; i < maxRows; i++)
         {
-            string col1 = i < todo.Count ? FormatTask(todo[i]) : "";
-            string col2 = i < progress.Count ? FormatTask(progress[i]) : "";
-            string col3 = i < done.Count ? FormatTask(done[i]) : "";
+            string col1 = todoIt.HasNext()
+                ? FormatTask(todoIt.Next())
+                : "";
+
+            string col2 = progIt.HasNext()
+                ? FormatTask(progIt.Next())
+                : "";
+
+            string col3 = doneIt.HasNext()
+                ? FormatTask(doneIt.Next())
+                : "";
 
             table.AddRow(col1, col2, col3);
         }
