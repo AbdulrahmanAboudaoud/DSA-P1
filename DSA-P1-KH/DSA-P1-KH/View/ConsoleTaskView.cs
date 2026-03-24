@@ -8,6 +8,7 @@ namespace DSA_P1_KH.View;
 public class ConsoleTaskView : ITaskView
 {
     private readonly ITaskService _service;
+    private TaskFilterMode _filterMode = TaskFilterMode.All;
 
     public ConsoleTaskView(ITaskService service)
     {
@@ -24,9 +25,17 @@ public class ConsoleTaskView : ITaskView
 
         var collection = (IMyCollection<TaskItem>)tasks;
 
-        var todo = collection.Filter(t => t.Status == TaskState.Todo);
-        var progress = collection.Filter(t => t.Status == TaskState.InProgress);
-        var done = collection.Filter(t => t.Status == TaskState.Done);
+        IMyCollection<TaskItem> filtered = _filterMode switch
+        {
+            TaskFilterMode.Todo => collection.Filter(t => t.Status == TaskState.Todo),
+            TaskFilterMode.InProgress => collection.Filter(t => t.Status == TaskState.InProgress),
+            TaskFilterMode.Done => collection.Filter(t => t.Status == TaskState.Done),
+            _ => collection
+        };
+
+        var todo = filtered.Filter(t => t.Status == TaskState.Todo);
+        var progress = filtered.Filter(t => t.Status == TaskState.InProgress);
+        var done = filtered.Filter(t => t.Status == TaskState.Done);
 
         int maxRows = Math.Max(todo.Count,
                         Math.Max(progress.Count, done.Count));
@@ -59,6 +68,8 @@ public class ConsoleTaskView : ITaskView
         }
 
         AnsiConsole.Write(table);
+
+        AnsiConsole.MarkupLine($"\n[grey]Current Filter:[/] [yellow]{_filterMode}[/]");
     }
 
     string FormatTask(TaskItem task)
@@ -81,6 +92,7 @@ public class ConsoleTaskView : ITaskView
                         "Add Task",
                         "Remove Task",
                         "Change Task Status",
+                        "Change Filter",
                         "Exit"
                     }));
 
@@ -114,6 +126,16 @@ public class ConsoleTaskView : ITaskView
                     );
 
                     _service.ChangeTaskStatus(id, status);
+                    break;
+
+                case "Change Filter":
+
+                    _filterMode = AnsiConsole.Prompt(
+                        new SelectionPrompt<TaskFilterMode>()
+                            .Title("Select [green]filter[/]:")
+                            .AddChoices(Enum.GetValues<TaskFilterMode>())
+                    );
+
                     break;
 
                 case "Exit":
