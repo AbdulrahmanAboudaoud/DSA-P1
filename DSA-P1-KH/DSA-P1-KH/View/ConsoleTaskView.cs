@@ -142,7 +142,8 @@ public class ConsoleTaskView : ITaskView
 
                     if (!_service.RemoveTask(removeId))
                     {
-                        AnsiConsole.MarkupLine("[red]No such task[/]");
+                        AnsiConsole.MarkupLine("[red]Error: No such task[/]");
+                        System.Console.ReadKey();
                     }
                     break;
 
