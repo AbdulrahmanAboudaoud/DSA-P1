@@ -9,6 +9,7 @@ public class ConsoleTaskView : ITaskView
 {
     private readonly ITaskService _service;
     private TaskFilterMode _filterMode = TaskFilterMode.All;
+    private TaskSortMode _sortMode = TaskSortMode.None;
 
     public ConsoleTaskView(ITaskService service)
     {
@@ -25,6 +26,20 @@ public class ConsoleTaskView : ITaskView
 
         var collection = (IMyCollection<TaskItem>)tasks;
 
+        // APPLY SORTING
+        if (_sortMode != TaskSortMode.None)
+        {
+            collection.Sort(_sortMode switch
+            {
+                TaskSortMode.Id => (a, b) => a.Id.CompareTo(b.Id),
+                TaskSortMode.CreationDate => (a, b) => a.CreationDate.CompareTo(b.CreationDate),
+                TaskSortMode.Description => (a, b) =>
+                    string.Compare(a.Description, b.Description, true),
+                _ => (a, b) => 0
+            });
+        }
+
+        // APPLY FILTERING
         IMyCollection<TaskItem> filtered = _filterMode switch
         {
             TaskFilterMode.Todo => collection.Filter(t => t.Status == TaskState.Todo),
@@ -69,7 +84,9 @@ public class ConsoleTaskView : ITaskView
 
         AnsiConsole.Write(table);
 
-        AnsiConsole.MarkupLine($"\n[grey]Current Filter:[/] [yellow]{_filterMode}[/]");
+        AnsiConsole.MarkupLine(
+            $"\n[grey]Filter:[/] [yellow]{_filterMode}[/]   " +
+            $"[grey]Sort:[/] [cyan]{_sortMode}[/]");
     }
 
     string FormatTask(TaskItem task)
@@ -93,6 +110,7 @@ public class ConsoleTaskView : ITaskView
                         "Remove Task",
                         "Change Task Status",
                         "Change Filter",
+                        "Change Sorting",
                         "Exit"
                     }));
 
@@ -134,6 +152,16 @@ public class ConsoleTaskView : ITaskView
                         new SelectionPrompt<TaskFilterMode>()
                             .Title("Select [green]filter[/]:")
                             .AddChoices(Enum.GetValues<TaskFilterMode>())
+                    );
+
+                    break;
+
+                case "Change Sorting":
+
+                    _sortMode = AnsiConsole.Prompt(
+                        new SelectionPrompt<TaskSortMode>()
+                            .Title("Select [green]sorting[/]:")
+                            .AddChoices(Enum.GetValues<TaskSortMode>())
                     );
 
                     break;
