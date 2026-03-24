@@ -37,7 +37,7 @@ public class TaskService : ITaskService
         _repository.SaveTasks(_tasks);
     }
 
-    public void RemoveTask(int id)
+    public bool RemoveTask(int id)
     {
         var task = _tasks.FindBy(id, (t, key) => t.Id == key);
 
@@ -45,7 +45,10 @@ public class TaskService : ITaskService
         {
             _tasks.Remove(task);
             _repository.SaveTasks(_tasks);
+            return true;
         }
+
+        return false;
     }
 
     public void ChangeTaskStatus(int id, TaskState newStatus)
@@ -57,5 +60,21 @@ public class TaskService : ITaskService
             task.Status = newStatus;
             _repository.SaveTasks(_tasks);
         }
+    }
+
+    public void ChangeTaskDescription(int id, string newDescription)
+    {
+        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+
+        if (task != null)
+        {
+            task.Description = newDescription;
+            _repository.SaveTasks(_tasks);
+        }
+    }
+
+    public TaskItem? FindByDescription(string description)
+    {
+        return _tasks.FindBy(description, (t, key) => t.Description == key);
     }
 }
