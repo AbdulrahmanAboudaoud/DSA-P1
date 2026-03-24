@@ -109,6 +109,7 @@ public class ConsoleTaskView : ITaskView
                         "Add Task",
                         "Remove Task",
                         "Change Task Status",
+                        "Edit Task",
                         "Change Filter",
                         "Change Sorting",
                         "Exit"
@@ -121,6 +122,16 @@ public class ConsoleTaskView : ITaskView
                     var description = AnsiConsole.Ask<string>(
                         "Enter [green]task description[/]:");
 
+                    var duplicate = _service.FindByDescription(description);
+
+                    if (duplicate != null)
+                    {
+                        AnsiConsole.MarkupLine($"[yellow]Warning: A task with this description already exists (ID: {duplicate.Id})[/]");
+                        var confirmAdd = AnsiConsole.Confirm("Do you want to add an identical task under a new ID?");
+                        if (!confirmAdd)
+                            break;
+                    }
+
                     _service.AddTask(description);
                     break;
 
@@ -129,7 +140,10 @@ public class ConsoleTaskView : ITaskView
                     var removeId = AnsiConsole.Ask<int>(
                         "Enter task [red]id[/] to remove:");
 
-                    _service.RemoveTask(removeId);
+                    if (!_service.RemoveTask(removeId))
+                    {
+                        AnsiConsole.MarkupLine("[red]No such task[/]");
+                    }
                     break;
 
                 case "Change Task Status":
@@ -144,6 +158,17 @@ public class ConsoleTaskView : ITaskView
                     );
 
                     _service.ChangeTaskStatus(id, status);
+                    break;
+
+                case "Edit Task":
+
+                    var descId = AnsiConsole.Ask<int>(
+                        "Enter task [blue]id[/]:");
+
+                    var desc = AnsiConsole.Ask<string>(
+                        "Enter new [green]description[/]:");
+
+                    _service.ChangeTaskDescription(descId, desc);
                     break;
 
                 case "Change Filter":

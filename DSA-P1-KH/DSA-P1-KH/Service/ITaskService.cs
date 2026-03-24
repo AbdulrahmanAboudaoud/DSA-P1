@@ -8,7 +8,11 @@ public interface ITaskService
 
     void AddTask(string description);
 
-    void RemoveTask(int id);
+    bool RemoveTask(int id);
 
     void ChangeTaskStatus(int id, TaskState newStatus);
+
+    void ChangeTaskDescription(int id, string newDescription);
+
+    TaskItem? FindByDescription(string description);
 }
