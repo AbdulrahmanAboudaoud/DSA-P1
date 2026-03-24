@@ -1,6 +1,6 @@
 using System.Text.Json;
 using DSA_P1_KH.Model;
-using DSA_P1_KH.DataStructures.LinkedList;
+using DSA_P1_KH.DataStructures.ArrayList;
 using DSA_P1_KH.DataStructures.Interfaces;
 
 namespace DSA_P1_KH.Repository;
@@ -16,7 +16,7 @@ public class JsonTaskRepository : ITaskRepository
 
     public IMyCollection<TaskItem> LoadTasks()
     {
-        var collection = new MyLinkedList<TaskItem>();
+        var collection = new MyArrayList<TaskItem>();
 
         if (!File.Exists(_filePath))
             return collection;
