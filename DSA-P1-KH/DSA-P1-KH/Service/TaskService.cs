@@ -75,6 +75,6 @@ public class TaskService : ITaskService
 
     public TaskItem? FindByDescription(string description)
     {
-        return _tasks.FindBy(description, (t, key) => t.Description == key);
+        return _tasks.FindBy(description, (t, key) => string.Equals(t.Description, key, StringComparison.Ordinal));
     }
 }
