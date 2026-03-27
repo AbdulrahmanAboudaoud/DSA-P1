@@ -3,66 +3,84 @@
     "Id": 2,
     "Description": "finish DSA assignment",
     "Status": 1,
+    "Priority": 2,
     "CreationDate": "2026-03-21T14:45:02+01:00"
   },
   {
     "Id": 3,
     "Description": "call Ibrahim",
     "Status": 2,
+    "Priority": 1,
     "CreationDate": "2026-03-19T18:20:30+01:00"
   },
   {
     "Id": 4,
-    "Description": "clean room good",
+    "Description": "clean rooooom ",
     "Status": 0,
+    "Priority": 2,
     "CreationDate": "2026-03-18T11:05:10+01:00"
   },
   {
     "Id": 5,
     "Description": "prepare presentation",
     "Status": 1,
+    "Priority": 2,
     "CreationDate": "2026-03-22T08:30:45+01:00"
   },
   {
     "Id": 6,
     "Description": "gym session",
     "Status": 2,
+    "Priority": 0,
     "CreationDate": "2026-03-17T20:55:12+01:00"
   },
   {
     "Id": 7,
     "Description": "watch algorithms lecture",
     "Status": 0,
+    "Priority": 1,
     "CreationDate": "2026-03-23T10:10:00+01:00"
   },
   {
     "Id": 8,
     "Description": "update GitHub repo",
     "Status": 1,
+    "Priority": 1,
     "CreationDate": "2026-03-16T16:40:33+01:00"
   },
   {
     "Id": 9,
     "Description": "bike shop inventory",
     "Status": 2,
+    "Priority": 2,
     "CreationDate": "2026-03-15T13:22:58+01:00"
   },
   {
     "Id": 10,
     "Description": "study sorting algorithms",
     "Status": 0,
+    "Priority": 2,
     "CreationDate": "2026-03-24T09:00:00+01:00"
   },
   {
     "Id": 11,
     "Description": "fix UI bugs",
     "Status": 1,
+    "Priority": 0,
     "CreationDate": "2026-03-14T19:47:21+01:00"
   },
   {
     "Id": 12,
     "Description": "team meeting",
     "Status": 2,
+    "Priority": 1,
     "CreationDate": "2026-03-13T12:15:05+01:00"
+  },
+  {
+    "Id": 13,
+    "Description": "github",
+    "Status": 0,
+    "Priority": 0,
+    "CreationDate": "2026-03-27T09:47:50.447327+01:00"
   }
 ]

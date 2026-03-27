@@ -20,7 +20,7 @@ public class TaskService : ITaskService
         return _tasks;
     }
 
-    public void AddTask(string description)
+    public void AddTask(string description, TaskPriority priority)
     {
         int maxId = _tasks.Reduce(0, (max, t) => t.Id > max ? t.Id : max);
         int newId = maxId + 1;
@@ -30,6 +30,7 @@ public class TaskService : ITaskService
             Id = newId,
             Description = description,
             Status = TaskState.Todo,
+            Priority = priority,
             CreationDate = DateTime.Now
         };
 
@@ -76,5 +77,16 @@ public class TaskService : ITaskService
     public TaskItem? FindByDescription(string description)
     {
         return _tasks.FindBy(description, (t, key) => string.Equals(t.Description, key, StringComparison.Ordinal));
+    }
+
+    public void ChangeTaskPriority(int id, TaskPriority newPriority)
+    {
+        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+
+        if (task != null)
+        {
+            task.Priority = newPriority;
+            _repository.SaveTasks(_tasks);
+        }
     }
 }
