@@ -10,11 +10,19 @@ public interface ITaskService
 
     bool RemoveTask(int id);
 
-    void ChangeTaskStatus(int id, TaskState newStatus);
+    TaskItem GetTask(int id);
+
+    TaskItem? GetTaskById(int id);
+
+    bool ChangeTaskStatus(int id, TaskState newStatus);
 
     void ChangeTaskDescription(int id, string newDescription);
 
     void ChangeTaskPriority(int id, TaskPriority newPriority);
 
     TaskItem? FindByDescription(string description);
+
+    bool AddDependency(int taskId, int dependencyId);
+
+    bool RemoveDependency(int taskId, int dependencyId);
 }

@@ -1,6 +1,6 @@
-using DSA_P1_KH.Model;
 using DSA_P1_KH.Repository;
 using DSA_P1_KH.DataStructures.Interfaces;
+using DSA_P1_KH.Model;
 
 namespace DSA_P1_KH.Service;
 
@@ -15,78 +15,203 @@ public class TaskService : ITaskService
         _tasks = _repository.LoadTasks();
     }
 
-    public IEnumerable<TaskItem> GetAllTasks()
-    {
-        return _tasks;
-    }
+    public IEnumerable<TaskItem> GetAllTasks() => _tasks;
 
     public void AddTask(string description, TaskPriority priority)
     {
         int maxId = _tasks.Reduce(0, (max, t) => t.Id > max ? t.Id : max);
         int newId = maxId + 1;
 
-        var newTask = new TaskItem
+        _tasks.Add(new TaskItem
         {
             Id = newId,
             Description = description,
-            Status = TaskState.Todo,
             Priority = priority,
+            Status = TaskState.Todo,
             CreationDate = DateTime.Now
-        };
+        });
 
-        _tasks.Add(newTask);
         _repository.SaveTasks(_tasks);
     }
 
     public bool RemoveTask(int id)
     {
         var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        if (task == null) return false;
 
-        if (task != null)
+        foreach (var t in _tasks)
         {
-            _tasks.Remove(task);
-            _repository.SaveTasks(_tasks);
-            return true;
+            if (t.Dependencies != null && Contains(t.Dependencies, id))
+                return false;
         }
 
-        return false;
+        _tasks.Remove(task);
+        _repository.SaveTasks(_tasks);
+        return true;
     }
 
-    public void ChangeTaskStatus(int id, TaskState newStatus)
+    public bool ChangeTaskStatus(int id, TaskState newStatus)
     {
         var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        if (task == null) return false;
 
-        if (task != null)
+        if (newStatus == TaskState.Done && task.Dependencies != null)
         {
-            task.Status = newStatus;
-            _repository.SaveTasks(_tasks);
+            for (int i = 0; i < task.Dependencies.Length; i++)
+            {
+                var dep = _tasks.FindBy(task.Dependencies[i], (t, key) => t.Id == key);
+
+                if (dep == null || dep.Status != TaskState.Done)
+                    return false;
+            }
         }
+
+        task.Status = newStatus;
+        _repository.SaveTasks(_tasks);
+        return true;
     }
 
     public void ChangeTaskDescription(int id, string newDescription)
     {
-        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        var task = GetTaskById(id);
+        if (task == null) return;
 
-        if (task != null)
-        {
-            task.Description = newDescription;
-            _repository.SaveTasks(_tasks);
-        }
-    }
-
-    public TaskItem? FindByDescription(string description)
-    {
-        return _tasks.FindBy(description, (t, key) => string.Equals(t.Description, key, StringComparison.Ordinal));
+        task.Description = newDescription;
+        _repository.SaveTasks(_tasks);
     }
 
     public void ChangeTaskPriority(int id, TaskPriority newPriority)
     {
-        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        var task = GetTaskById(id);
+        if (task == null) return;
 
-        if (task != null)
+        task.Priority = newPriority;
+        _repository.SaveTasks(_tasks);
+    }
+
+    public TaskItem GetTask(int id)
+    {
+        var task = GetTaskById(id);
+        if (task == null)
+            throw new KeyNotFoundException($"Task {id} not found");
+
+        return task;
+    }
+
+    public TaskItem? GetTaskById(int id)
+        => _tasks.FindBy(id, (t, key) => t.Id == key);
+
+    public TaskItem? FindByDescription(string description)
+        => _tasks.FindBy(description, (t, key) =>
+            string.Equals(t.Description, key, StringComparison.Ordinal));
+
+    // DEPENDENCIES //
+
+    public bool AddDependency(int taskId, int dependencyId)
+    {
+        var task = GetTaskById(taskId);
+        var dependency = GetTaskById(dependencyId);
+
+        if (task == null || dependency == null)
+            return false;
+
+        if (taskId == dependencyId)
+            return false;
+
+        if (HasCircularDependency(taskId, dependencyId))
+            return false;
+
+        if (task.Dependencies.Length == 0)
         {
-            task.Priority = newPriority;
-            _repository.SaveTasks(_tasks);
+            task.Dependencies = new int[] { dependencyId };
         }
+        else
+        {
+            if (Contains(task.Dependencies, dependencyId))
+                return false;
+
+            task.Dependencies = AddToArray(task.Dependencies, dependencyId);
+        }
+
+        _repository.SaveTasks(_tasks);
+        return true;
+    }
+
+    public bool RemoveDependency(int taskId, int dependencyId)
+    {
+        var task = GetTaskById(taskId);
+        if (task == null || task.Dependencies.Length == 0)
+            return false;
+
+        if (!Contains(task.Dependencies, dependencyId))
+            return false;
+
+        task.Dependencies = RemoveFromArray(task.Dependencies, dependencyId);
+
+        _repository.SaveTasks(_tasks);
+        return true;
+    }
+
+    // HELPERS //
+
+    private bool Contains(int[] arr, int value)
+    {
+        for (int i = 0; i < arr.Length; i++)
+            if (arr[i] == value)
+                return true;
+
+        return false;
+    }
+
+    private int[] AddToArray(int[] arr, int value)
+    {
+        int[] newArr = new int[arr.Length + 1];
+
+        for (int i = 0; i < arr.Length; i++)
+            newArr[i] = arr[i];
+
+        newArr[arr.Length] = value;
+
+        return newArr;
+    }
+
+    private int[] RemoveFromArray(int[] arr, int value)
+    {
+        int count = 0;
+
+        for (int i = 0; i < arr.Length; i++)
+            if (arr[i] != value)
+                count++;
+
+        int[] newArr = new int[count];
+        int index = 0;
+
+        for (int i = 0; i < arr.Length; i++)
+        {
+            if (arr[i] != value)
+            {
+                newArr[index++] = arr[i];
+            }
+        }
+
+        return newArr;
+    }
+
+    private bool HasCircularDependency(int startId, int targetId)
+    {
+        if (startId == targetId)
+            return true;
+
+        var task = GetTaskById(targetId);
+        if (task == null || task.Dependencies.Length == 0)
+            return false;
+
+        for (int i = 0; i < task.Dependencies.Length; i++)
+        {
+            if (HasCircularDependency(startId, task.Dependencies[i]))
+                return true;
+        }
+
+        return false;
     }
 }

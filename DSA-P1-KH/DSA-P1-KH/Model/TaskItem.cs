@@ -9,5 +9,8 @@ public class TaskItem
     public TaskState Status { get; set; } = TaskState.Todo;
 
     public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+
     public DateTime CreationDate { get; set; } = DateTime.Now;
+
+    public int[] Dependencies { get; set; } = new int[0];
 }
