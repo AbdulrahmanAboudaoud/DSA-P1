@@ -15,7 +15,7 @@ class Program
             AnsiConsole.Clear();
 
             AnsiConsole.Write(
-                new FigletText("DSA Project")
+                new FigletText("DSA Project 1")
                     .Centered()
                     .Color(Color.Cyan)
             );
@@ -26,6 +26,7 @@ class Program
                     .AddChoices(new[]
                     {
                         "Dynamic Array Demo",
+                        "Linked List Demo",
                         "Run Task Manager",
                         "Exit"
                     })
@@ -35,6 +36,10 @@ class Program
             {
                 case "Dynamic Array Demo":
                     DynamicArrayDemo.Run();
+                    break;
+
+                case "Linked List Demo":
+                    LinkedListDemo.Run();
                     break;
 
                 case "Run Task Manager":

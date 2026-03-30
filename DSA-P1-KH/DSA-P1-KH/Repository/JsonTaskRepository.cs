@@ -1,13 +1,15 @@
 using System.Text.Json;
 using DSA_P1_KH.Model;
-using DSA_P1_KH.DataStructures.ArrayList;
 using DSA_P1_KH.DataStructures.Interfaces;
+using DSA_P1_KH.DataStructures.ArrayList;
+using DSA_P1_KH.DataStructures.LinkedList;
 
 namespace DSA_P1_KH.Repository;
 
 public class JsonTaskRepository : ITaskRepository
 {
     private readonly string _filePath;
+    private readonly bool _useLinkedList = true;
 
     public JsonTaskRepository(string filePath)
     {
@@ -16,7 +18,10 @@ public class JsonTaskRepository : ITaskRepository
 
     public IMyCollection<TaskItem> LoadTasks()
     {
-        var collection = new MyArrayList<TaskItem>();
+        IMyCollection<TaskItem> collection =
+            _useLinkedList
+            ? new MyLinkedList<TaskItem>()
+            : new MyArrayList<TaskItem>();
 
         if (!File.Exists(_filePath))
             return collection;
