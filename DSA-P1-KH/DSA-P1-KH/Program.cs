@@ -27,6 +27,7 @@ class Program
                     {
                         "Dynamic Array Demo",
                         "Linked List Demo",
+                        "HashMap Demo",
                         "Run Task Manager",
                         "Exit"
                     })
@@ -40,6 +41,10 @@ class Program
 
                 case "Linked List Demo":
                     LinkedListDemo.Run();
+                    break;
+
+                case "HashMap Demo":
+                    HashMapDemo.Run();
                     break;
 
                 case "Run Task Manager":

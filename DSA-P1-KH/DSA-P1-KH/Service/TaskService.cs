@@ -1,5 +1,6 @@
 using DSA_P1_KH.Repository;
 using DSA_P1_KH.DataStructures.Interfaces;
+using DSA_P1_KH.DataStructures.HashMap;
 using DSA_P1_KH.Model;
 
 namespace DSA_P1_KH.Service;
@@ -8,11 +9,19 @@ public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
     private readonly IMyCollection<TaskItem> _tasks;
+    private MyHashMap<int, TaskItem> _map;
 
     public TaskService(ITaskRepository repository)
     {
         _repository = repository;
         _tasks = _repository.LoadTasks();
+
+        _map = new MyHashMap<int, TaskItem>();
+
+        foreach (var task in _tasks)
+        {
+            _map.Put(task.Id, task);
+        }
     }
 
     public IEnumerable<TaskItem> GetAllTasks() => _tasks;
@@ -22,21 +31,24 @@ public class TaskService : ITaskService
         int maxId = _tasks.Reduce(0, (max, t) => t.Id > max ? t.Id : max);
         int newId = maxId + 1;
 
-        _tasks.Add(new TaskItem
+        var newTask = new TaskItem
         {
             Id = newId,
             Description = description,
             Priority = priority,
             Status = TaskState.Todo,
             CreationDate = DateTime.Now
-        });
+        };
+
+        _tasks.Add(newTask);
+        _map.Put(newTask.Id, newTask);
 
         _repository.SaveTasks(_tasks);
     }
 
     public bool RemoveTask(int id)
     {
-        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        var task = _map.Get(id);
         if (task == null) return false;
 
         foreach (var t in _tasks)
@@ -46,20 +58,21 @@ public class TaskService : ITaskService
         }
 
         _tasks.Remove(task);
+
         _repository.SaveTasks(_tasks);
         return true;
     }
 
     public bool ChangeTaskStatus(int id, TaskState newStatus)
     {
-        var task = _tasks.FindBy(id, (t, key) => t.Id == key);
+        var task = _map.Get(id);
         if (task == null) return false;
 
         if (newStatus == TaskState.Done && task.Dependencies != null)
         {
             for (int i = 0; i < task.Dependencies.Length; i++)
             {
-                var dep = _tasks.FindBy(task.Dependencies[i], (t, key) => t.Id == key);
+                var dep = _map.Get(task.Dependencies[i]);
 
                 if (dep == null || dep.Status != TaskState.Done)
                     return false;
@@ -73,7 +86,7 @@ public class TaskService : ITaskService
 
     public void ChangeTaskDescription(int id, string newDescription)
     {
-        var task = GetTaskById(id);
+        var task = _map.Get(id);
         if (task == null) return;
 
         task.Description = newDescription;
@@ -82,7 +95,7 @@ public class TaskService : ITaskService
 
     public void ChangeTaskPriority(int id, TaskPriority newPriority)
     {
-        var task = GetTaskById(id);
+        var task = _map.Get(id);
         if (task == null) return;
 
         task.Priority = newPriority;
@@ -91,7 +104,8 @@ public class TaskService : ITaskService
 
     public TaskItem GetTask(int id)
     {
-        var task = GetTaskById(id);
+        var task = _map.Get(id);
+
         if (task == null)
             throw new KeyNotFoundException($"Task {id} not found");
 
@@ -99,18 +113,24 @@ public class TaskService : ITaskService
     }
 
     public TaskItem? GetTaskById(int id)
-        => _tasks.FindBy(id, (t, key) => t.Id == key);
+    {
+        return _map.Get(id);
+    }
 
     public TaskItem? FindByDescription(string description)
-        => _tasks.FindBy(description, (t, key) =>
+    {
+        return _tasks.FindBy(description, (t, key) =>
             string.Equals(t.Description, key, StringComparison.Ordinal));
+    }
 
-    // DEPENDENCIES //
+    // =====================
+    // DEPENDENCIES
+    // =====================
 
     public bool AddDependency(int taskId, int dependencyId)
     {
-        var task = GetTaskById(taskId);
-        var dependency = GetTaskById(dependencyId);
+        var task = _map.Get(taskId);
+        var dependency = _map.Get(dependencyId);
 
         if (task == null || dependency == null)
             return false;
@@ -139,7 +159,7 @@ public class TaskService : ITaskService
 
     public bool RemoveDependency(int taskId, int dependencyId)
     {
-        var task = GetTaskById(taskId);
+        var task = _map.Get(taskId);
         if (task == null || task.Dependencies.Length == 0)
             return false;
 
@@ -152,7 +172,9 @@ public class TaskService : ITaskService
         return true;
     }
 
-    // HELPERS //
+    // =====================
+    // HELPERS
+    // =====================
 
     private bool Contains(int[] arr, int value)
     {
@@ -202,7 +224,7 @@ public class TaskService : ITaskService
         if (startId == targetId)
             return true;
 
-        var task = GetTaskById(targetId);
+        var task = _map.Get(targetId);
         if (task == null || task.Dependencies.Length == 0)
             return false;
 
