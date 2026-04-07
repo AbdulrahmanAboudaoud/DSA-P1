@@ -2,287 +2,192 @@
 
 # Project Overview
 
-This project is a console-based task management system developed in C#.
+This project is a console-based task management system developed in C# using a layered architecture and custom data structures.
 
-The main goal of the application is to manage tasks using a layered architecture while gradually replacing built-in collection classes with custom data structure implementations.
+The goal of the project is to replace built-in collections with self-implemented data structures while building a functional and scalable task management system.
 
-The system allows users to:
+The application allows users to:
 
-- Create tasks
+- Create tasks  
+- Remove tasks  
+- Update tasks  
+- Assign tasks to users  
+- Manage task dependencies  
+- Filter and sort tasks  
+- View tasks in a Kanban-style board  
 
-- Remove tasks
+Additionally, the system supports:
 
-- Update tasks
+- Role-based access (Project Manager / Worker)  
+- Task assignment and ownership  
+- Permission enforcement  
+- Multiple custom data structures  
 
-- View tasks
+---
 
-In later stages, advanced features such as filtering, sorting, dependency tracking, Kanban movement, and performance comparison between data structures will be implemented.
+# Key Features
 
-This project focuses not only on functionality but also on applying important software engineering principles such as:
+## Task Management
+- Full CRUD operations
+- Task priority (Low, Medium, High)
+- Task status (Todo, InProgress, Done)
 
-1- Modular design
+## Filtering & Sorting
+- Filter by status
+- Filter by priority
+- Filter by creation date
+- Sort by ID, description, and date
 
-2- Abstraction
+## Task Dependencies
+- Tasks can depend on other tasks
+- Cannot mark task as Done if dependencies are incomplete
+- Circular dependency prevention
 
-3- Separation of concerns
+## Role-Based System
+- Project Manager:
+  - Can modify all tasks
+  - Can assign tasks
+- Worker:
+  - Can only modify assigned tasks
+- UI shows clear error messages for unauthorized actions
 
-4- Maintainability
+## Assignment System
+- Tasks can be assigned to users
+- Assigned user is displayed in UI
 
-5- Scalability
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Architecture Overview
 
-The application follows a layered architecture, consisting of the following layers:
+The application follows a layered architecture:
 
-- Model Layer
+- Model Layer → Data representation  
+- Repository Layer → Data persistence  
+- Service Layer → Business logic  
+- View Layer → Console UI  
+- DataStructures Layer → Custom structures  
 
-- Repository Layer
+This ensures:
 
-- Service Layer
+- Separation of concerns  
+- Maintainability  
+- Scalability  
+- Flexibility  
 
-- View Layer
-
-- DataStructures Layer
-
-Each layer has a clearly defined responsibility, which improves:
-
-- Code readability
-
-- Maintainability
-
-- Testability
-
-- Flexibility
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Project Folder Structure
 
-📁 Model
+## 📁 Model
+Contains domain objects:
 
-The Model folder contains domain entities that represent real-world objects used by the application.
+- TaskItem (task data + dependencies + assignment)
+- Enums (TaskState, TaskPriority, UserRole)
 
-🎯 Purpose
+---
 
-To store structured data related to tasks.
+## 📁 Repository
+Handles data storage:
 
-📄 Current Content
+- ITaskRepository → contract
+- JsonTaskRepository → JSON persistence
 
-TaskItem.cs
+---
 
-This class represents a task and includes basic properties such as:
+## 📁 Service
+Contains core logic:
 
-Task identifier
+- TaskService
+  - CRUD operations
+  - Dependency management
+  - Role-based permissions
+  - Assignment logic
+  - Uses HashMap for fast lookup
 
-Task description
+---
 
-Completion status
+## 📁 View
+Console interface using Spectre.Console:
 
-Future enhancements may include:
+- Kanban board visualization
+- Filtering & sorting UI
+- Role-based interaction
+- Permission-aware actions
 
-Task priority
+---
 
-Task status categories
+## 📁 DataStructures
 
-Task assignment
+Custom implementations replacing built-in collections:
 
-Task dependency tracking
+### ArrayList
+- Dynamic array
+- Automatic resizing
+- Iterator support
 
---------------------------------------------------------------------------------------------------------
+### LinkedList
+- Node-based structure
+- Efficient insert/remove
+- Sequential traversal
 
-📁 Repository
+### HashMap
+- Custom hash table
+- Key → value mapping
+- O(1) lookup for tasks by ID
+- Used in TaskService
 
-The Repository folder is responsible for handling data persistence.
+### Binary Search Tree (BST)
+- Hierarchical structure
+- Ordered storage
+- Traversal (InOrder, PreOrder, PostOrder)
+- Used for demonstration and comparison
 
-🎯 Purpose
+---
 
-To abstract how tasks are stored and retrieved.
+## 📁 PhaseDemos
+Demonstrates each data structure:
 
-This ensures that the rest of the application does not depend on a specific storage mechanism.
+- Dynamic Array Demo  
+- Linked List Demo  
+- HashMap Demo  
+- BST Demo  
 
-📄 Files
+---
 
-ITaskRepository.cs
-Defines the contract for loading and saving tasks.
+## 📄 Program.cs
+Application entry point:
 
-JsonTaskRepository.cs
-Implements the repository using a JSON file as storage.
-This enables persistence between application runs.
+- Menu system
+- Demo selection
+- Role selection (Manager / Worker)
+- Starts Task Manager
 
-Future implementations may include:
+---
 
-Database storage
+## 📄 tasks.json
+Stores task data persistently.
 
-Alternative file formats
+---
 
---------------------------------------------------------------------------------------------------------
+# Data Structures Used
 
-📁 Service
+| Structure   | Purpose |
+|------------|--------|
+| ArrayList  | Dynamic storage |
+| LinkedList | Alternative sequential storage |
+| HashMap    | Fast lookup by ID (O(1)) |
+| BST        | Sorted traversal and hierarchy |
 
-The Service folder contains the business logic of the application.
+---
 
-🎯 Purpose
+# Conclusion
 
-To control how tasks are created, modified, and removed.
+This project demonstrates:
 
-This layer acts as a bridge between:
+- Implementation of core data structures
+- Real-world application of DSA concepts
+- Clean architecture design
+- Performance optimization using HashMap
+- Role-based access control
 
-Repository (data storage)
-
-View (user interface)
-
-📄 Files
-
-ITaskService.cs
-Defines operations that can be performed on tasks.
-
-TaskService.cs
-Implements task management logic such as:
-
-Creating tasks
-
-Removing tasks
-
-Updating completion state
-
-Communicating with the repository
-
---------------------------------------------------------------------------------------------------------
-
-📁 View
-
-The View folder manages interaction with the user.
-
-🎯 Purpose
-
-To display information and capture user input through the console interface.
-
-📄 Files
-
-ITaskView.cs
-Defines the user interface contract.
-
-ConsoleTaskView.cs
-Implements a console-based menu system allowing users to:
-
-View tasks
-
-Add tasks
-
-Remove tasks
-
-Toggle completion
-
-Future updates will include:
-
-Filtering
-
-Sorting
-
-Kanban-style task movement
-
---------------------------------------------------------------------------------------------------------
-
-📁 DataStructures
-
-The DataStructures folder contains custom implementations of collection types.
-
-The project requirement specifies that built-in collections will eventually be replaced with self-implemented data structures.
-
---------------------------------------------------------------------------------------------------------
-
-📁 Interfaces
-
-Contains generic collection interfaces:
-
-IMyCollection.cs → defines operations such as add, remove, and iteration
-
-IMyIterator.cs → defines traversal logic
-
-These interfaces allow different data structures to be used interchangeably.
-
---------------------------------------------------------------------------------------------------------
-
-📁 ArrayList
-
-Will contain a dynamic array implementation.
-
-Planned responsibilities:
-
-Automatic resizing
-
-Element insertion and removal
-
-Iterator support
-
-This structure will be the first replacement for built-in lists.
-
---------------------------------------------------------------------------------------------------------
-
-📁 LinkedList
-
-Will contain a custom linked list implementation.
-
-Planned use cases:
-
-Sequential traversal
-
-Alternative storage strategy
-
-Performance comparison
-
---------------------------------------------------------------------------------------------------------
-
-📁 HashMap
-
-Will contain a custom hash table implementation.
-
-Planned use cases:
-
-Fast lookup by key
-
-Task dependency management
-
-Efficient search operations
-
---------------------------------------------------------------------------------------------------------
-
-📁 BST (Binary Search Tree)
-
-Will contain a binary search tree implementation.
-
-Planned use cases:
-
-Sorted task storage
-
-Range queries
-
-Optimized filtering
-
---------------------------------------------------------------------------------------------------------
-
-📄 Program.cs
-
-This file serves as the application entry point.
-
-Responsibilities include:
-
-Creating repository instance
-
-Creating service instance
-
-Creating view instance
-
-Starting the application loop
-
-This file connects all layers together.
-
---------------------------------------------------------------------------------------------------------
-
-📄 tasks.json
-
-This file stores serialized task data.
-
-It allows the application to persist tasks between sessions.
+The system is scalable and can be extended with features like databases, authentication, or APIs.
