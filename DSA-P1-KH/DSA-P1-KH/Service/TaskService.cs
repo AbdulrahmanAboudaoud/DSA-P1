@@ -58,15 +58,21 @@ public class TaskService : ITaskService
         }
 
         _tasks.Remove(task);
-
         _repository.SaveTasks(_tasks);
         return true;
     }
 
-    public bool ChangeTaskStatus(int id, TaskState newStatus)
+    public bool ChangeTaskStatus(int id, TaskState newStatus, string user, UserRole role)
     {
         var task = _map.Get(id);
         if (task == null) return false;
+
+        bool canModify =
+            role == UserRole.ProjectManager ||
+            task.AssignedTo == user;
+
+        if (!canModify)
+            return false;
 
         if (newStatus == TaskState.Done && task.Dependencies != null)
         {
@@ -84,19 +90,33 @@ public class TaskService : ITaskService
         return true;
     }
 
-    public void ChangeTaskDescription(int id, string newDescription)
+    public void ChangeTaskDescription(int id, string newDescription, string user, UserRole role)
     {
         var task = _map.Get(id);
         if (task == null) return;
+
+        bool canModify =
+            role == UserRole.ProjectManager ||
+            task.AssignedTo == user;
+
+        if (!canModify)
+            return;
 
         task.Description = newDescription;
         _repository.SaveTasks(_tasks);
     }
 
-    public void ChangeTaskPriority(int id, TaskPriority newPriority)
+    public void ChangeTaskPriority(int id, TaskPriority newPriority, string user, UserRole role)
     {
         var task = _map.Get(id);
         if (task == null) return;
+
+        bool canModify =
+            role == UserRole.ProjectManager ||
+            task.AssignedTo == user;
+
+        if (!canModify)
+            return;
 
         task.Priority = newPriority;
         _repository.SaveTasks(_tasks);
@@ -122,10 +142,6 @@ public class TaskService : ITaskService
         return _tasks.FindBy(description, (t, key) =>
             string.Equals(t.Description, key, StringComparison.Ordinal));
     }
-
-    // =====================
-    // DEPENDENCIES
-    // =====================
 
     public bool AddDependency(int taskId, int dependencyId)
     {
@@ -172,9 +188,21 @@ public class TaskService : ITaskService
         return true;
     }
 
-    // =====================
-    // HELPERS
-    // =====================
+    public bool AssignTask(int taskId, string userName, UserRole role)
+    {
+        if (role != UserRole.ProjectManager)
+            return false;
+
+        var task = _map.Get(taskId);
+
+        if (task == null)
+            return false;
+
+        task.AssignedTo = userName;
+
+        _repository.SaveTasks(_tasks);
+        return true;
+    }
 
     private bool Contains(int[] arr, int value)
     {

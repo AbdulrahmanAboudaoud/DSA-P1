@@ -9,6 +9,8 @@ namespace DSA_P1_KH.View;
 public class ConsoleTaskView : ITaskView
 {
     private readonly ITaskService _service;
+    private readonly UserRole _role;
+    private readonly string _user;
 
     private TaskFilterMode _statusFilterMode = TaskFilterMode.All;
     private TaskPriorityFilterMode _priorityFilterMode = TaskPriorityFilterMode.All;
@@ -16,9 +18,11 @@ public class ConsoleTaskView : ITaskView
 
     private TaskSortMode _sortMode = TaskSortMode.None;
 
-    public ConsoleTaskView(ITaskService service)
+    public ConsoleTaskView(ITaskService service, UserRole role, string user)
     {
         _service = service;
+        _role = role;
+        _user = user;
     }
 
     void DisplayTasks(IEnumerable<TaskItem> tasks)
@@ -27,14 +31,11 @@ public class ConsoleTaskView : ITaskView
         Console.SetCursorPosition(0, 0);
         AnsiConsole.Clear();
 
-
         AnsiConsole.Write(
             new Rule("[yellow]Kanban Board[/]").RuleStyle("grey").Centered()
         );
 
         var collection = (IMyCollection<TaskItem>)tasks;
-
-        // SORTING //
 
         if (_sortMode != TaskSortMode.None)
         {
@@ -47,8 +48,6 @@ public class ConsoleTaskView : ITaskView
                 _ => (a, b) => 0
             });
         }
-
-        // FILTERING //
 
         IMyCollection<TaskItem> filtered = collection;
 
@@ -67,21 +66,11 @@ public class ConsoleTaskView : ITaskView
             filtered = filtered.Filter(t => t.Priority == TaskPriority.High);
 
         if (_dateFilterMode == TaskDateFilterMode.Today)
-        {
             filtered = filtered.Filter(t => t.CreationDate.Date == DateTime.Today);
-        }
         else if (_dateFilterMode == TaskDateFilterMode.ThisWeek)
-        {
-            filtered = filtered.Filter(t =>
-                t.CreationDate.Date >= DateTime.Today.AddDays(-7));
-        }
+            filtered = filtered.Filter(t => t.CreationDate.Date >= DateTime.Today.AddDays(-7));
         else if (_dateFilterMode == TaskDateFilterMode.Older)
-        {
-            filtered = filtered.Filter(t =>
-                t.CreationDate.Date < DateTime.Today.AddDays(-7));
-        }
-
-        // SPLIT INTO COLUMNS //
+            filtered = filtered.Filter(t => t.CreationDate.Date < DateTime.Today.AddDays(-7));
 
         var todo = filtered.Filter(t => t.Status == TaskState.Todo);
         var progress = filtered.Filter(t => t.Status == TaskState.InProgress);
@@ -111,7 +100,8 @@ public class ConsoleTaskView : ITaskView
         AnsiConsole.Write(table);
 
         AnsiConsole.MarkupLine(
-            $"\n[grey]Status:[/] [yellow]{_statusFilterMode}[/]   " +
+            $"\n[grey]User:[/] [cyan]{_user}[/] ([yellow]{_role}[/])   " +
+            $"[grey]Status:[/] [yellow]{_statusFilterMode}[/]   " +
             $"[grey]Priority:[/] [yellow]{_priorityFilterMode}[/]   " +
             $"[grey]Date:[/] [yellow]{_dateFilterMode}[/]   " +
             $"[grey]Sort:[/] [cyan]{_sortMode}[/]");
@@ -124,14 +114,6 @@ public class ConsoleTaskView : ITaskView
             TaskPriority.High => "red",
             TaskPriority.Medium => "yellow",
             TaskPriority.Low => "grey",
-            _ => "white"
-        };
-
-        string statusColor = task.Status switch
-        {
-            TaskState.Todo => "red",
-            TaskState.InProgress => "yellow",
-            TaskState.Done => "green",
             _ => "white"
         };
 
@@ -148,12 +130,22 @@ public class ConsoleTaskView : ITaskView
             }
         }
 
+        string assigned = string.IsNullOrEmpty(task.AssignedTo)
+            ? ""
+            : $"\n[dim]@{task.AssignedTo}[/]";
+
         return
-            $"[grey]#{task.Id} [/]{deps}\n" +                 // ID + deps
-            $"[bold]{task.Description}[/]\n" +               // description
-            $"[{priorityColor}]{task.Priority}[/]\n" +       // priority (only color)
-            $"[dim]{task.CreationDate:dd/MM HH:mm}[/]\n" +   // date
+            $"[grey]#{task.Id} [/]{deps}\n" +
+            $"[bold]{task.Description}[/]{assigned}\n" +
+            $"[{priorityColor}]{task.Priority}[/]\n" +
+            $"[dim]{task.CreationDate:dd/MM HH:mm}[/]\n" +
             "[dim]────────────[/]";
+    }
+
+    bool CanModify(TaskItem? task)
+    {
+        return task != null &&
+               (_role == UserRole.ProjectManager || task.AssignedTo == _user);
     }
 
     public void Run()
@@ -162,24 +154,31 @@ public class ConsoleTaskView : ITaskView
         {
             DisplayTasks(_service.GetAllTasks());
 
+            var choices = new List<string>
+            {
+                "Add Task",
+                "Remove Task",
+                "Change Task Status",
+                "Change Task Priority",
+                "Change Task Description",
+                "Add Dependency",
+                "Remove Dependency",
+                "Change Status Filter",
+                "Change Priority Filter",
+                "Change Date Filter",
+                "Change Sorting"
+            };
+
+            if (_role == UserRole.ProjectManager)
+                choices.Add("Assign Task");
+
+            choices.Add("Exit");
+
             var option = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[yellow]Select an option[/]")
-                    .AddChoices(new[]
-                    {
-                        "Add Task",
-                        "Remove Task",
-                        "Change Task Status",
-                        "Change Task Priority",
-                        "Change Task Description",
-                        "Add Dependency",
-                        "Remove Dependency",
-                        "Change Status Filter",
-                        "Change Priority Filter",
-                        "Change Date Filter",
-                        "Change Sorting",
-                        "Exit"
-                    }));
+                    .AddChoices(choices)
+            );
 
             switch (option)
             {
@@ -206,6 +205,14 @@ public class ConsoleTaskView : ITaskView
 
                 case "Change Task Status":
                     var id = AnsiConsole.Ask<int>("Enter task id:");
+                    var taskStatus = _service.GetTaskById(id);
+
+                    if (!CanModify(taskStatus))
+                    {
+                        AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager[/]");
+                        Console.ReadKey();
+                        break;
+                    }
 
                     var status = AnsiConsole.Prompt(
                         new SelectionPrompt<TaskState>()
@@ -213,21 +220,38 @@ public class ConsoleTaskView : ITaskView
                             .AddChoices(Enum.GetValues<TaskState>())
                     );
 
-                    if (!_service.ChangeTaskStatus(id, status))
+                    if (!_service.ChangeTaskStatus(id, status, _user, _role))
                     {
-                        AnsiConsole.MarkupLine("[red]Cannot change status (dependencies not completed)[/]");
+                        AnsiConsole.MarkupLine("[red]Dependencies not completed[/]");
                         Console.ReadKey();
                     }
                     break;
 
                 case "Change Task Description":
                     var descId = AnsiConsole.Ask<int>("Enter task id:");
+                    var taskDesc = _service.GetTaskById(descId);
+
+                    if (!CanModify(taskDesc))
+                    {
+                        AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager[/]");
+                        Console.ReadKey();
+                        break;
+                    }
+
                     var desc = AnsiConsole.Ask<string>("Enter new description:");
-                    _service.ChangeTaskDescription(descId, desc);
+                    _service.ChangeTaskDescription(descId, desc, _user, _role);
                     break;
 
                 case "Change Task Priority":
                     var prioId = AnsiConsole.Ask<int>("Enter task id:");
+                    var taskPrio = _service.GetTaskById(prioId);
+
+                    if (!CanModify(taskPrio))
+                    {
+                        AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager[/]");
+                        Console.ReadKey();
+                        break;
+                    }
 
                     var newPriority = AnsiConsole.Prompt(
                         new SelectionPrompt<TaskPriority>()
@@ -235,7 +259,7 @@ public class ConsoleTaskView : ITaskView
                             .AddChoices(Enum.GetValues<TaskPriority>())
                     );
 
-                    _service.ChangeTaskPriority(prioId, newPriority);
+                    _service.ChangeTaskPriority(prioId, newPriority, _user, _role);
                     break;
 
                 case "Add Dependency":
@@ -256,6 +280,17 @@ public class ConsoleTaskView : ITaskView
                     if (!_service.RemoveDependency(tId, dId))
                     {
                         AnsiConsole.MarkupLine("[red]Cannot remove dependency[/]");
+                        Console.ReadKey();
+                    }
+                    break;
+
+                case "Assign Task":
+                    var assignId = AnsiConsole.Ask<int>("Task id:");
+                    var assignUser = AnsiConsole.Ask<string>("Assign to:");
+
+                    if (!_service.AssignTask(assignId, assignUser, _role))
+                    {
+                        AnsiConsole.MarkupLine("[red]Only manager can assign tasks[/]");
                         Console.ReadKey();
                     }
                     break;

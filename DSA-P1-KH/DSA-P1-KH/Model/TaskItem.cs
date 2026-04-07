@@ -13,4 +13,6 @@ public class TaskItem
     public DateTime CreationDate { get; set; } = DateTime.Now;
 
     public int[] Dependencies { get; set; } = new int[0];
+
+    public string? AssignedTo { get; set; }
 }

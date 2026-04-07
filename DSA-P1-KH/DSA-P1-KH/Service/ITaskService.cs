@@ -14,15 +14,17 @@ public interface ITaskService
 
     TaskItem? GetTaskById(int id);
 
-    bool ChangeTaskStatus(int id, TaskState newStatus);
+    bool ChangeTaskStatus(int id, TaskState newStatus, string user, UserRole role);
 
-    void ChangeTaskDescription(int id, string newDescription);
+    void ChangeTaskDescription(int id, string newDescription, string user, UserRole role);
 
-    void ChangeTaskPriority(int id, TaskPriority newPriority);
+    void ChangeTaskPriority(int id, TaskPriority newPriority, string user, UserRole role);
 
     TaskItem? FindByDescription(string description);
 
     bool AddDependency(int taskId, int dependencyId);
 
     bool RemoveDependency(int taskId, int dependencyId);
+
+    bool AssignTask(int taskId, string userName, UserRole role);
 }
