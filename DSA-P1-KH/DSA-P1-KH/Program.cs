@@ -28,6 +28,7 @@ class Program
                         "Dynamic Array Demo",
                         "Linked List Demo",
                         "HashMap Demo",
+                        "Binary Search Tree Demo",
                         "Run Task Manager",
                         "Exit"
                     })
@@ -45,6 +46,10 @@ class Program
 
                 case "HashMap Demo":
                     HashMapDemo.Run();
+                    break;
+
+                case "Binary Search Tree Demo":
+                    BSTDemo.Run();
                     break;
 
                 case "Run Task Manager":
