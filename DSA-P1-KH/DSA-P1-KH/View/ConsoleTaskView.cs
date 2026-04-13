@@ -139,7 +139,7 @@ public class ConsoleTaskView : ITaskView
             $"[bold]{task.Description}[/]{assigned}\n" +
             $"[{priorityColor}]{task.Priority}[/]\n" +
             $"[dim]{task.CreationDate:dd/MM HH:mm}[/]\n" +
-            "[dim]────────────[/]";
+            "[white]────────────[/]";
     }
 
     bool CanModify(TaskItem? task)

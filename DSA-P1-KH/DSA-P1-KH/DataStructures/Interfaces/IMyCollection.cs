@@ -20,5 +20,5 @@ public interface IMyCollection<T> : IEnumerable<T>
 
     IMyIterator<T> GetIterator();
 
-    IEnumerator<T> GetEnumerator(); // foreach support
+    IEnumerator<T> GetEnumerator();
 }
