@@ -8,7 +8,7 @@ public interface ITaskService
 
     void AddTask(string description, TaskPriority priority);
 
-    bool RemoveTask(int id);
+    RemoveTaskResult RemoveTask(int id, string user, UserRole role);
 
     TaskItem GetTask(int id);
 
@@ -26,5 +26,5 @@ public interface ITaskService
 
     bool RemoveDependency(int taskId, int dependencyId);
 
-    bool AssignTask(int taskId, string userName, UserRole role);
+    AssignTaskResult AssignTask(int id, string user, UserRole role);
 }

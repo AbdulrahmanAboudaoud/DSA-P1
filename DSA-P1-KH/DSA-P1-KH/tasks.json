@@ -2,84 +2,33 @@
   {
     "Id": 2,
     "Description": "finish DSA assignment",
-    "Status": 1,
+    "Status": 2,
     "Priority": 2,
     "CreationDate": "2026-03-21T14:45:02+01:00",
+    "Dependencies": [
+      10,
+      8
+    ],
+    "AssignedTo": "Abdul"
+  },
+  {
+    "Id": 8,
+    "Description": "update GitHub repo",
+    "Status": 2,
+    "Priority": 1,
+    "CreationDate": "2026-03-16T16:40:33+01:00",
     "Dependencies": [
       10
     ],
     "AssignedTo": "Abdul"
   },
   {
-    "Id": 3,
-    "Description": "call Ibrahim",
-    "Status": 2,
-    "Priority": 1,
-    "CreationDate": "2026-03-19T18:20:30+01:00",
-    "Dependencies": [],
-    "AssignedTo": "Iba"
-  },
-  {
-    "Id": 4,
-    "Description": "Clean Room",
-    "Status": 0,
-    "Priority": 1,
-    "CreationDate": "2026-03-18T11:05:10+01:00",
-    "Dependencies": [
-      3
-    ],
-    "AssignedTo": "Abdul"
-  },
-  {
-    "Id": 5,
-    "Description": "prepare presentation",
-    "Status": 1,
-    "Priority": 2,
-    "CreationDate": "2026-03-22T08:30:45+01:00",
-    "Dependencies": [
-      2
-    ],
-    "AssignedTo": "Iba"
-  },
-  {
-    "Id": 8,
-    "Description": "update GitHub repo",
-    "Status": 1,
-    "Priority": 1,
-    "CreationDate": "2026-03-16T16:40:33+01:00",
-    "Dependencies": [],
-    "AssignedTo": "Abdul"
-  },
-  {
     "Id": 10,
     "Description": "study sorting algorithms",
-    "Status": 0,
+    "Status": 2,
     "Priority": 2,
     "CreationDate": "2026-03-24T09:00:00+01:00",
     "Dependencies": [],
-    "AssignedTo": "Iba"
-  },
-  {
-    "Id": 13,
-    "Description": "github",
-    "Status": 0,
-    "Priority": 0,
-    "CreationDate": "2026-03-27T09:47:50+01:00",
-    "Dependencies": [
-      2,
-      4
-    ],
-    "AssignedTo": "Abdul"
-  },
-  {
-    "Id": 15,
-    "Description": "finish ds p1",
-    "Status": 0,
-    "Priority": 1,
-    "CreationDate": "2026-03-30T14:21:52+02:00",
-    "Dependencies": [
-      4
-    ],
     "AssignedTo": "Iba"
   }
 ]

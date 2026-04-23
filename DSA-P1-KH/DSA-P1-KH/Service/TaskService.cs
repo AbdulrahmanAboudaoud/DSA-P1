@@ -46,20 +46,26 @@ public class TaskService : ITaskService
         _repository.SaveTasks(_tasks);
     }
 
-    public bool RemoveTask(int id)
+    public RemoveTaskResult RemoveTask(int id, string user, UserRole role)
     {
         var task = _map.Get(id);
-        if (task == null) return false;
+
+        if (task == null)
+            return RemoveTaskResult.TaskNotFound;
+
+        if (role != UserRole.ProjectManager && task.AssignedTo != user)
+            return RemoveTaskResult.PermissionDenied;
 
         foreach (var t in _tasks)
         {
             if (t.Dependencies != null && Contains(t.Dependencies, id))
-                return false;
+                return RemoveTaskResult.HasDependencies;
         }
 
         _tasks.Remove(task);
         _repository.SaveTasks(_tasks);
-        return true;
+
+        return RemoveTaskResult.Success;
     }
 
     public bool ChangeTaskStatus(int id, TaskState newStatus, string user, UserRole role)
@@ -188,20 +194,20 @@ public class TaskService : ITaskService
         return true;
     }
 
-    public bool AssignTask(int taskId, string userName, UserRole role)
+    public AssignTaskResult AssignTask(int id, string user, UserRole role)
     {
         if (role != UserRole.ProjectManager)
-            return false;
+            return AssignTaskResult.PermissionDenied;
 
-        var task = _map.Get(taskId);
+        var task = _map.Get(id);
 
         if (task == null)
-            return false;
+            return AssignTaskResult.TaskNotFound;
 
-        task.AssignedTo = userName;
-
+        task.AssignedTo = user;
         _repository.SaveTasks(_tasks);
-        return true;
+
+        return AssignTaskResult.Success;
     }
 
     private bool Contains(int[] arr, int value)

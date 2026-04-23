@@ -196,11 +196,27 @@ public class ConsoleTaskView : ITaskView
 
                 case "Remove Task":
                     var removeId = AnsiConsole.Ask<int>("Enter task id:");
-                    if (!_service.RemoveTask(removeId))
+
+                    var result = _service.RemoveTask(removeId, _user, _role);
+
+                    switch (result)
                     {
-                        AnsiConsole.MarkupLine("[red]Cannot remove task[/]");
-                        Console.ReadKey();
+                        case RemoveTaskResult.TaskNotFound:
+                            AnsiConsole.MarkupLine("[red]Task not found.[/]");
+                            Console.ReadKey();
+                            break;
+
+                        case RemoveTaskResult.PermissionDenied:
+                            AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager can delete this task.[/]");
+                            Console.ReadKey();
+                            break;
+
+                        case RemoveTaskResult.HasDependencies:
+                            AnsiConsole.MarkupLine("[red]Cannot remove task: other tasks depend on it.[/]");
+                            Console.ReadKey();
+                            break;
                     }
+
                     break;
 
                 case "Change Task Status":
@@ -288,10 +304,19 @@ public class ConsoleTaskView : ITaskView
                     var assignId = AnsiConsole.Ask<int>("Task id:");
                     var assignUser = AnsiConsole.Ask<string>("Assign to:");
 
-                    if (!_service.AssignTask(assignId, assignUser, _role))
+                    var assignResult = _service.AssignTask(assignId, assignUser, _role);
+
+                    switch (assignResult)
                     {
-                        AnsiConsole.MarkupLine("[red]Only manager can assign tasks[/]");
-                        Console.ReadKey();
+                        case AssignTaskResult.TaskNotFound:
+                            AnsiConsole.MarkupLine($"[red]Task with ID {assignId} does not exist.[/]");
+                            Console.ReadKey();
+                            break;
+
+                        case AssignTaskResult.PermissionDenied:
+                            AnsiConsole.MarkupLine("[red]Only manager can assign tasks.[/]");
+                            Console.ReadKey();
+                            break;
                     }
                     break;
 
