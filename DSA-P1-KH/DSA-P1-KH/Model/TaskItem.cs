@@ -1,6 +1,6 @@
 namespace DSA_P1_KH.Model;
 
-public class TaskItem
+public class TaskItem : IComparable<TaskItem>
 {
     public int Id { get; set; }
 
@@ -15,4 +15,12 @@ public class TaskItem
     public int[] Dependencies { get; set; } = new int[0];
 
     public string? AssignedTo { get; set; }
+
+    public int CompareTo(TaskItem? other)
+    {
+        if (other == null)
+            return 1;
+
+        return Id.CompareTo(other.Id);
+    }
 }

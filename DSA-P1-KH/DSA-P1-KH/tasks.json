@@ -1,34 +1,11 @@
 [
   {
-    "Id": 2,
-    "Description": "finish DSA assignment",
-    "Status": 2,
-    "Priority": 2,
-    "CreationDate": "2026-03-21T14:45:02+01:00",
-    "Dependencies": [
-      10,
-      8
-    ],
-    "AssignedTo": "Abdul"
-  },
-  {
-    "Id": 8,
-    "Description": "update GitHub repo",
-    "Status": 2,
+    "Id": 1,
+    "Description": "test",
+    "Status": 1,
     "Priority": 1,
-    "CreationDate": "2026-03-16T16:40:33+01:00",
-    "Dependencies": [
-      10
-    ],
-    "AssignedTo": "Abdul"
-  },
-  {
-    "Id": 10,
-    "Description": "study sorting algorithms",
-    "Status": 2,
-    "Priority": 2,
-    "CreationDate": "2026-03-24T09:00:00+01:00",
+    "CreationDate": "2026-04-23T03:10:06.5169353+02:00",
     "Dependencies": [],
-    "AssignedTo": "Iba"
+    "AssignedTo": "ahmad"
   }
 ]

@@ -156,27 +156,36 @@ public class ConsoleTaskView : ITaskView
 
             var choices = new List<string>
             {
+                // Task management
                 "Add Task",
                 "Remove Task",
+
+                // Edit task
                 "Change Task Status",
                 "Change Task Priority",
                 "Change Task Description",
+
+                // Dependencies
                 "Add Dependency",
                 "Remove Dependency",
+
+                // View options
                 "Change Status Filter",
                 "Change Priority Filter",
                 "Change Date Filter",
-                "Change Sorting"
+                "Change Sorting",
+
+                // Exit
+                "Exit"
             };
 
             if (_role == UserRole.ProjectManager)
-                choices.Add("Assign Task");
-
-            choices.Add("Exit");
+                choices.Insert(2, "Assign Task");
 
             var option = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[yellow]Select an option[/]")
+                    .PageSize(15)
                     .AddChoices(choices)
             );
 
@@ -216,7 +225,26 @@ public class ConsoleTaskView : ITaskView
                             Console.ReadKey();
                             break;
                     }
+                    break;
 
+                case "Assign Task":
+                    var assignId = AnsiConsole.Ask<int>("Task id:");
+                    var assignUser = AnsiConsole.Ask<string>("Assign to:");
+
+                    var assignResult = _service.AssignTask(assignId, assignUser, _role);
+
+                    switch (assignResult)
+                    {
+                        case AssignTaskResult.TaskNotFound:
+                            AnsiConsole.MarkupLine($"[red]Task with ID {assignId} does not exist.[/]");
+                            Console.ReadKey();
+                            break;
+
+                        case AssignTaskResult.PermissionDenied:
+                            AnsiConsole.MarkupLine("[red]Only manager can assign tasks.[/]");
+                            Console.ReadKey();
+                            break;
+                    }
                     break;
 
                 case "Change Task Status":
@@ -243,21 +271,6 @@ public class ConsoleTaskView : ITaskView
                     }
                     break;
 
-                case "Change Task Description":
-                    var descId = AnsiConsole.Ask<int>("Enter task id:");
-                    var taskDesc = _service.GetTaskById(descId);
-
-                    if (!CanModify(taskDesc))
-                    {
-                        AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager[/]");
-                        Console.ReadKey();
-                        break;
-                    }
-
-                    var desc = AnsiConsole.Ask<string>("Enter new description:");
-                    _service.ChangeTaskDescription(descId, desc, _user, _role);
-                    break;
-
                 case "Change Task Priority":
                     var prioId = AnsiConsole.Ask<int>("Enter task id:");
                     var taskPrio = _service.GetTaskById(prioId);
@@ -276,6 +289,21 @@ public class ConsoleTaskView : ITaskView
                     );
 
                     _service.ChangeTaskPriority(prioId, newPriority, _user, _role);
+                    break;
+
+                case "Change Task Description":
+                    var descId = AnsiConsole.Ask<int>("Enter task id:");
+                    var taskDesc = _service.GetTaskById(descId);
+
+                    if (!CanModify(taskDesc))
+                    {
+                        AnsiConsole.MarkupLine("[red]Not allowed: only assigned user or manager[/]");
+                        Console.ReadKey();
+                        break;
+                    }
+
+                    var desc = AnsiConsole.Ask<string>("Enter new description:");
+                    _service.ChangeTaskDescription(descId, desc, _user, _role);
                     break;
 
                 case "Add Dependency":
@@ -297,26 +325,6 @@ public class ConsoleTaskView : ITaskView
                     {
                         AnsiConsole.MarkupLine("[red]Cannot remove dependency[/]");
                         Console.ReadKey();
-                    }
-                    break;
-
-                case "Assign Task":
-                    var assignId = AnsiConsole.Ask<int>("Task id:");
-                    var assignUser = AnsiConsole.Ask<string>("Assign to:");
-
-                    var assignResult = _service.AssignTask(assignId, assignUser, _role);
-
-                    switch (assignResult)
-                    {
-                        case AssignTaskResult.TaskNotFound:
-                            AnsiConsole.MarkupLine($"[red]Task with ID {assignId} does not exist.[/]");
-                            Console.ReadKey();
-                            break;
-
-                        case AssignTaskResult.PermissionDenied:
-                            AnsiConsole.MarkupLine("[red]Only manager can assign tasks.[/]");
-                            Console.ReadKey();
-                            break;
                     }
                     break;
 
