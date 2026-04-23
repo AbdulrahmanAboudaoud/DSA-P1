@@ -19,6 +19,39 @@ The project follows a layered architecture to keep the code clean, organized, an
 
 ---
 
+# Student Contributions
+
+## Abdulrahman
+
+Responsible for:
+
+- Implementing all custom data structures:
+  - Dynamic Array
+  - Linked List
+  - Binary Search Tree
+  - HashMap
+- Creating shared interfaces (`IMyCollection`, `IMyIterator`)
+- Integrating data structures into the Task Manager
+- Building demos for each data structure
+- Creating full console-based test system
+- Improving menus and console UI
+- Debugging and fixing structure logic
+
+## Ibrahim
+
+Responsible for:
+
+- Core Task Manager functionality
+- Task CRUD operations
+- Service and repository layers
+- JSON persistence system
+- Task assignment system
+- Permissions / roles system
+- Task dependency logic
+- Main application flow
+
+---
+
 # Project Structure
 
 ```text
@@ -44,55 +77,55 @@ DSA-P1
         │   └── ArrayIterator.cs → Iterator for array list
         │
         │── LinkedList
-        │   ├── MyLinkedList.cs      → Linked list implementation
-        │   ├── MyLinkedListNode.cs  → Node for linked list
-        │   └── LinkedListIterator.cs → Iterator for linked list
+        │   ├── MyLinkedList.cs       → Linked list implementation
+        │   ├── MyLinkedListNode.cs   → Node class
+        │   └── LinkedListIterator.cs → Iterator
         │
         │── BST
-        │   ├── MyBST.cs        → Binary Search Tree implementation
-        │   ├── MyBSTNode.cs    → Node for BST
-        │   └── BSTIterator.cs  → Iterator for BST
+        │   ├── MyBST.cs        → Binary Search Tree
+        │   ├── MyBSTNode.cs    → BST node
+        │   └── BSTIterator.cs  → Iterator
         │
         │── HashMap
-        │   ├── MyHashMap.cs            → HashMap implementation
-        │   ├── HashMapIterator.cs      → Iterator for HashMap
-        │   └── TaskHashMapCollection.cs → Adapter for Task Manager
+        │   ├── MyHashMap.cs             → HashMap implementation
+        │   ├── HashMapIterator.cs       → Iterator
+        │   └── TaskHashMapCollection.cs → Adapter for task system
 
         ├── Model
-        │   ├── TaskItem.cs            → Main task model
-        │   ├── UserRole.cs            → User roles
-        │   ├── TaskPriority.cs        → Priority enum
-        │   ├── TaskState.cs           → Status enum
-        │   ├── DataStructureType.cs   → Structure selection enum
-        │   ├── RemoveTaskResult.cs    → Delete result enum
-        │   └── AssignTaskResult.cs    → Assign result enum
+        │   ├── TaskItem.cs
+        │   ├── UserRole.cs
+        │   ├── TaskPriority.cs
+        │   ├── TaskState.cs
+        │   ├── DataStructureType.cs
+        │   ├── RemoveTaskResult.cs
+        │   └── AssignTaskResult.cs
 
         ├── Repository
-        │   ├── ITaskRepository.cs     → Repository interface
-        │   └── JsonTaskRepository.cs  → JSON load/save logic
+        │   ├── ITaskRepository.cs
+        │   └── JsonTaskRepository.cs
 
         ├── Service
-        │   ├── ITaskService.cs        → Service interface
-        │   └── TaskService.cs         → Business logic layer
+        │   ├── ITaskService.cs
+        │   └── TaskService.cs
 
         ├── View
-        │   ├── ITaskView.cs               → View interface
-        │   ├── ConsoleTaskView.cs         → Main Kanban UI
-        │   ├── TaskFilterMode.cs         → Status filter enum
-        │   ├── TaskPriorityFilterMode.cs → Priority filter enum
-        │   ├── TaskDateFilterMode.cs     → Date filter enum
-        │   └── TaskSortMode.cs           → Sorting enum
+        │   ├── ITaskView.cs
+        │   ├── ConsoleTaskView.cs
+        │   ├── TaskFilterMode.cs
+        │   ├── TaskPriorityFilterMode.cs
+        │   ├── TaskDateFilterMode.cs
+        │   └── TaskSortMode.cs
 
         ├── PhaseDemos
-        │   ├── DynamicArrayDemo.cs → Demo for array list
-        │   ├── LinkedListDemo.cs   → Demo for linked list
-        │   ├── BSTDemo.cs          → Demo for BST
-        │   └── HashMapDemo.cs      → Demo for HashMap
+        │   ├── DynamicArrayDemo.cs
+        │   ├── LinkedListDemo.cs
+        │   ├── BSTDemo.cs
+        │   └── HashMapDemo.cs
 
         └── Tests
-            ├── TestRunner.cs       → Runs all tests
-            ├── TestHelper.cs       → PASS/FAIL output helper
-            ├── ArrayListTests.cs   → Tests for array list
-            ├── LinkedListTests.cs  → Tests for linked list
-            ├── BSTTests.cs         → Tests for BST
-            └── HashMapTests.cs     → Tests for HashMap
+            ├── TestRunner.cs
+            ├── TestHelper.cs
+            ├── ArrayListTests.cs
+            ├── LinkedListTests.cs
+            ├── BSTTests.cs
+            └── HashMapTests.cs
