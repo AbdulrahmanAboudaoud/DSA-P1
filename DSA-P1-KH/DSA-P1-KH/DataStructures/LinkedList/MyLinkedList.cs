@@ -3,23 +3,13 @@ using DSA_P1_KH.DataStructures.Interfaces;
 
 namespace DSA_P1_KH.DataStructures.LinkedList;
 
-public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
+public class MyLinkedList<T> : IMyCollection<T>
 {
     private MyLinkedListNode<T>? _head;
     private int _count;
 
-    public bool Dirty { get; set; }
-
     public int Count => _count;
-
-    public MyLinkedList()
-    {
-        _head = null;
-        _count = 0;
-        Dirty = false;
-    }
-
-    // ADD
+    public bool Dirty { get; set; }
     public void Add(T item)
     {
         var newNode = new MyLinkedListNode<T>(item);
@@ -31,7 +21,6 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         else
         {
             var current = _head;
-
             while (current.Next != null)
                 current = current.Next;
 
@@ -42,13 +31,11 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         Dirty = true;
     }
 
-    // REMOVE
     public void Remove(T item)
     {
         if (_head == null)
             return;
 
-        // remove head
         if (Equals(_head.Data, item))
         {
             _head = _head.Next;
@@ -58,7 +45,6 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         }
 
         var current = _head;
-
         while (current.Next != null)
         {
             if (Equals(current.Next.Data, item))
@@ -73,7 +59,6 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         }
     }
 
-    // FIND BY
     public T FindBy<K>(K key, Func<T, K, bool> comparer)
     {
         var current = _head;
@@ -86,10 +71,9 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
             current = current.Next;
         }
 
-        return default!;
+        return default!; // not found
     }
 
-    // FILTER
     public IMyCollection<T> Filter(Func<T, bool> predicate)
     {
         var result = new MyLinkedList<T>();
@@ -106,7 +90,6 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         return result;
     }
 
-    // SORT (bubble sort)
     public void Sort(Comparison<T> comparison)
     {
         if (_head == null)
@@ -138,19 +121,9 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         Dirty = true;
     }
 
-    // REDUCE
     public R Reduce<R>(Func<R, T, R> accumulator)
     {
-        R result = default!;
-        var current = _head;
-
-        while (current != null)
-        {
-            result = accumulator(result, current.Data);
-            current = current.Next;
-        }
-
-        return result;
+        return Reduce(default!, accumulator);
     }
 
     public R Reduce<R>(R initial, Func<R, T, R> accumulator)
@@ -167,13 +140,11 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         return result;
     }
 
-    // ITERATOR
     public IMyIterator<T> GetIterator()
     {
         return new MyLinkedListIterator<T>(_head);
     }
 
-    // ENUMERATOR (for foreach)
     public IEnumerator<T> GetEnumerator()
     {
         var current = _head;
@@ -185,8 +156,5 @@ public class MyLinkedList<T> : IMyCollection<T>, IEnumerable<T>
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
